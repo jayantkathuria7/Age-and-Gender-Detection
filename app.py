@@ -110,7 +110,7 @@ def draw_label_within_bbox(image, label, x, y, w, h):
     
     # Function to get text size
     def get_text_size(text, font_scale, thickness):
-        return cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
+        return cv2.getTextSize(text, cv2.FONT_HERSHEY_COMPLEX_SMALL, font_scale, thickness)
     
     # Reduce font size until text fits within the max width
     while True:
@@ -146,7 +146,7 @@ def draw_label_within_bbox(image, label, x, y, w, h):
     cv2.rectangle(image, (rect_x1, rect_y1), (rect_x2, rect_y2), (0, 0, 0), -1)
     
     # Draw the text on top of the rectangle
-    cv2.putText(image, label, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), thickness)
+    cv2.putText(image, label, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL, font_scale, (255, 255, 255), thickness)
 
 
 def main():
