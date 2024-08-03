@@ -157,15 +157,13 @@ def main():
                     female_count += 1
 
                # Draw label
-                font = cv2.FONT_HERSHEY_SIMPLEX
-                font_scale = 0.6
-                thickness = 2
-                text_size, _ = cv2.getTextSize(label, font, font_scale, thickness)
-                text_w, text_h = text_size
-                text_x = x
-                text_y = y - 10 if y - 10 > 10 else y + 10
-                cv2.rectangle(image_np, (text_x, text_y - text_h - 10), (text_x + text_w + 10, text_y + 10), (0, 0, 0), -1)
-                cv2.putText(image_np, label, (text_x + 5, text_y - 5), font, font_scale, (255, 255, 255), thickness)
+                (text_width, text_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+                rect_x1 = x
+                rect_y1 = y - text_height - 10
+                rect_x2 = x + text_width - 10
+                rect_y2 = y - 5
+                cv2.rectangle(image_np, (rect_x1, rect_y1), (rect_x2, rect_y2), (0, 0, 0), -1)
+                cv2.putText(image_np, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
 
                 
         # Display images and counts
@@ -220,15 +218,13 @@ def main():
                         label = f'{gender}, {age}'
 
                     # Draw label
-                    font = cv2.FONT_HERSHEY_SIMPLEX
-                    font_scale = 0.6
-                    thickness = 2
-                    text_size, _ = cv2.getTextSize(label, font, font_scale, thickness)
-                    text_w, text_h = text_size
-                    text_x = x
-                    text_y = y - 10 if y - 10 > 10 else y + 10
-                    cv2.rectangle(frame, (text_x, text_y - text_h - 10), (text_x + text_w + 10, text_y + 10), (0, 0, 0), -1)
-                    cv2.putText(frame, label, (text_x + 5, text_y - 5), font, font_scale, (255, 255, 255), thickness)
+                    (text_width, text_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+                    rect_x1 = x
+                    rect_y1 = y - text_height - 10
+                    rect_x2 = x + text_width - 10
+                    rect_y2 = y - 5
+                    cv2.rectangle(frame, (rect_x1, rect_y1), (rect_x2, rect_y2), (0, 0, 0), -1)
+                    cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
                     
                     # Update gender counters
                     if gender == 'Male':
