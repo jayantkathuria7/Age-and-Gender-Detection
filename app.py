@@ -103,40 +103,49 @@ def detect_shirt(frame, shirt_roi):
     return detected_color
 
 def draw_label_within_bbox(image, label, x, y, w, h):
-    # Set maximum width for text to be 80% of the bounding box width
-    max_text_width = w * 0.8
+    # Define initial settings
+    max_text_width = w * 0.8  # Max width for the text
     font_scale = 1.0
     thickness = 2
 
+    # Function to get text size
+    def get_text_size(text, font_scale, thickness):
+        return cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
+
+    # Reduce font size until the text fits within the max width
     while True:
-        (text_w, text_h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
+        text_size, _ = get_text_size(label, font_scale, thickness)
+        text_w, text_h = text_size
         if text_w <= max_text_width:
             break
-        font_scale -= 0.1  # Reduce font size
-        if font_scale <= 0.1:  # Minimum font scale
+        font_scale -= 0.1
+        if font_scale <= 0.1:
             break
 
-    # Calculate text size and position
-    (text_w, text_h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
-    
-    # Calculate the position for the rectangle and text
-    text_x = x + (w - text_w) // 2  # Center the text horizontally
+    # Calculate the text size and position
+    text_size, _ = get_text_size(label, font_scale, thickness)
+    text_w, text_h = text_size
+
+    # Text position and rectangle dimensions
+    text_x = x + (w - text_w) // 2  # Center text horizontally
     text_y = y - 10  # Position text above the bounding box
-    rect_x1 = text_x - 5  # Add padding around the text
-    rect_y1 = text_y - text_h - 10  # Position rectangle above the text
+
+    # Rectangle coordinates
+    rect_x1 = text_x - 5  # Padding around the text
+    rect_y1 = text_y - text_h - 10
     rect_x2 = text_x + text_w + 5
     rect_y2 = text_y + 5
 
-    # Ensure rectangle coordinates are within the image bounds
+    # Ensure rectangle coordinates are within image bounds
     rect_x1 = max(rect_x1, 0)
     rect_y1 = max(rect_y1, 0)
     rect_x2 = min(rect_x2, image.shape[1])
     rect_y2 = min(rect_y2, image.shape[0])
 
-    # Draw a filled black rectangle around the text
+    # Draw black rectangle
     cv2.rectangle(image, (rect_x1, rect_y1), (rect_x2, rect_y2), (0, 0, 0), -1)
-    
-    # Put the text on top of the black rectangle
+
+    # Draw the text on top of the rectangle
     cv2.putText(image, label, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), thickness)
 
 
