@@ -103,20 +103,20 @@ def detect_shirt(frame, shirt_roi):
     return detected_color
 
 def draw_label_within_bbox(image, label, x, y, w, h):
-    # Define initial settings
-    max_text_width = w * 0.8  # Max width for the text
+    # Define maximum width for text (80% of bounding box width)
+    max_text_width = w * 0.8
     font_scale = 1.0
     thickness = 2
-
+    
     # Function to get text size
     def get_text_size(text, font_scale, thickness):
         return cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
-
-    # Reduce font size until the text fits within the max width
+    
+    # Reduce font size until text fits within the max width
     while True:
         text_size, _ = get_text_size(label, font_scale, thickness)
         text_w, text_h = text_size
-        if text_w <= max_text_width:
+        if text_w <= max_text_width and text_h <= h * 0.8:  # Ensure height also fits within bounding box
             break
         font_scale -= 0.1
         if font_scale <= 0.1:
@@ -125,13 +125,13 @@ def draw_label_within_bbox(image, label, x, y, w, h):
     # Calculate the text size and position
     text_size, _ = get_text_size(label, font_scale, thickness)
     text_w, text_h = text_size
-
-    # Text position and rectangle dimensions
-    text_x = x + (w - text_w) // 2  # Center text horizontally
-    text_y = y - 10  # Position text above the bounding box
-
-    # Rectangle coordinates
-    rect_x1 = text_x - 5  # Padding around the text
+    
+    # Text position (centered horizontally, just above bounding box)
+    text_x = x + (w - text_w) // 2
+    text_y = y - 10  # Slightly above the bounding box
+    
+    # Rectangle dimensions with padding
+    rect_x1 = text_x - 5
     rect_y1 = text_y - text_h - 10
     rect_x2 = text_x + text_w + 5
     rect_y2 = text_y + 5
@@ -142,9 +142,9 @@ def draw_label_within_bbox(image, label, x, y, w, h):
     rect_x2 = min(rect_x2, image.shape[1])
     rect_y2 = min(rect_y2, image.shape[0])
 
-    # Draw black rectangle
+    # Draw the black rectangle
     cv2.rectangle(image, (rect_x1, rect_y1), (rect_x2, rect_y2), (0, 0, 0), -1)
-
+    
     # Draw the text on top of the rectangle
     cv2.putText(image, label, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), thickness)
 
