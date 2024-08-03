@@ -228,6 +228,8 @@ def main():
 
         video.release()
         cv2.destroyAllWindows()
+        st.write("Debug info:", debug_info)
+
 
 
 if __name__ == "__main__":
