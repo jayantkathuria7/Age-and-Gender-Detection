@@ -29,17 +29,17 @@ def preprocess_image(img):
 
 # Assuming your model outputs two separate predictions: age and gender
 def detect_age_gender(image):
-    img = preprocess_image(image)
-    pred = model.predict(np.array([img]))
-
-    # Extract predictions
-    age = int(np.round(pred[1][0]))
-    gender = int(np.round(pred[0][0]))
-
-    # Example interpretation (you need to adjust according to your model's output)
-    gender_f = ['Male', 'Female']
-
-    return age, gender_f[gender]
+    try:
+        img = preprocess_image(image)
+        pred = model.predict(np.array([img]))
+        age = int(np.round(pred[1][0]))
+        gender = int(np.round(pred[0][0]))
+        gender_f = ['Male', 'Female']
+        return age, gender_f[gender]
+    except Exception as e:
+        logging.error(f"Error in detect_age_gender: {e}")
+        st.error("An error occurred during age and gender detection.")
+        return None, None
 
 # Detect faces in the frame
 def detect_faces(frame):
