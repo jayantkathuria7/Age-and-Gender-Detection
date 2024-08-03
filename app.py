@@ -102,43 +102,6 @@ def detect_shirt(frame, shirt_roi):
         detected_color = 'unknown'
     return detected_color
 
-def draw_label_top_left(image, label, x, y, w, h):
-    # Font properties
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    font_scale = 0.6
-    thickness = 2
-    text_color = (255, 255, 255)  # White text
-    rect_color = (0, 0, 0)        # Black rectangle background
-
-    # Calculate text size
-    text_size, _ = cv2.getTextSize(label, font, font_scale, thickness)
-    text_w, text_h = text_size
-
-    # Define padding for rectangle
-    padding = 5
-    
-    # Rectangle coordinates
-    rect_x1 = x
-    rect_y1 = y
-    rect_x2 = x + text_w + 2 * padding
-    rect_y2 = y + text_h + 2 * padding
-    
-    # Ensure rectangle coordinates are within image bounds
-    rect_x1 = max(rect_x1, 0)
-    rect_y1 = max(rect_y1, 0)
-    rect_x2 = min(rect_x2, image.shape[1])
-    rect_y2 = min(rect_y2, image.shape[0])
-
-    # Draw the black rectangle
-    cv2.rectangle(image, (rect_x1, rect_y1), (rect_x2, rect_y2), rect_color, -1)
-
-    # Calculate the text position (top-left inside the rectangle)
-    text_x = x + padding
-    text_y = y + text_h + padding - 3  # Adjust for text baseline
-
-    # Draw the text on top of the rectangle
-    cv2.putText(image, label, (text_x, text_y), font, font_scale, text_color, thickness)
-    
 def main():
     st.title("Age and Gender Detection")
     st.markdown("""
@@ -193,7 +156,17 @@ def main():
                 elif gender == 'Female':
                     female_count += 1
 
-                draw_label_within_bbox(image_np, label, x, y, w, h)
+               # Draw label
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                font_scale = 0.6
+                thickness = 2
+                text_size, _ = cv2.getTextSize(label, font, font_scale, thickness)
+                text_w, text_h = text_size
+                text_x = x
+                text_y = y - 10 if y - 10 > 10 else y + 10
+                cv2.rectangle(image_np, (text_x, text_y - text_h - 10), (text_x + text_w + 10, text_y + 10), (0, 0, 0), -1)
+                cv2.putText(image_np, label, (text_x + 5, text_y - 5), font, font_scale, (255, 255, 255), thickness)
+
                 
         # Display images and counts
         st.image(image_np, caption="Processed Image", use_column_width=True)
@@ -246,7 +219,16 @@ def main():
                         age = 23
                         label = f'{gender}, {age}'
 
-                    draw_label_within_bbox(frame, label, x, y, w, h)
+                    # Draw label
+                    font = cv2.FONT_HERSHEY_SIMPLEX
+                    font_scale = 0.6
+                    thickness = 2
+                    text_size, _ = cv2.getTextSize(label, font, font_scale, thickness)
+                    text_w, text_h = text_size
+                    text_x = x
+                    text_y = y - 10 if y - 10 > 10 else y + 10
+                    cv2.rectangle(frame, (text_x, text_y - text_h - 10), (text_x + text_w + 10, text_y + 10), (0, 0, 0), -1)
+                    cv2.putText(frame, label, (text_x + 5, text_y - 5), font, font_scale, (255, 255, 255), thickness)
                     
                     # Update gender counters
                     if gender == 'Male':
