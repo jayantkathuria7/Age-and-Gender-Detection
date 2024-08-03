@@ -12,7 +12,6 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Load your custom model (ensure your model path is correct)
-# Load your custom model (ensure your model path is correct)
 try:
     model = tf.keras.models.load_model('Age_Sex_Detection.keras')
     logging.info("Model loaded successfully.")
@@ -21,20 +20,28 @@ except Exception as e:
     st.error("Failed to load model.")
 
 def preprocess_image(img):
-    if isinstance(img, Image.Image):  # Check if the image is a PIL image
-        if img.mode == 'RGBA':
-            img = img.convert('RGB')
-        img = np.array(img)  # Convert PIL image to NumPy array
-    elif isinstance(img, np.ndarray):  # If already a NumPy array
-        if len(img.shape) == 3 and img.shape[2] == 4:  # Check if it's RGBA
-            img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)  # Convert RGBA to RGB
-    else:
-        raise ValueError("Unsupported image format")
+    try:
+        if isinstance(img, Image.Image):  # Check if the image is a PIL image
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
+            img = np.array(img)  # Convert PIL image to NumPy array
+        elif isinstance(img, np.ndarray):  # If already a NumPy array
+            if len(img.shape) == 3 and img.shape[2] == 4:  # Check if it's RGBA
+                img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)  # Convert RGBA to RGB
+            img = np.array(img)
+        else:
+            raise ValueError("Unsupported image format")
 
         # Resize and normalize image
-    img = cv2.resize(img, (48, 48))
-    img = img / 255.0
-    return img
+        img = cv2.resize(img, (48, 48))
+        img = img / 255.0
+        logging.info(f"Image preprocessed: shape={img.shape}")
+        return img
+    except Exception as e:
+        logging.error(f"Error in preprocess_image: {e}")
+        st.error("An error occurred during image preprocessing.")
+        return None
+
 
 
 # Assuming your model outputs two separate predictions: age and gender
