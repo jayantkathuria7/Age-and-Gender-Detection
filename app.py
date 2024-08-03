@@ -6,6 +6,10 @@ import cv2
 import tempfile
 from sklearn.cluster import KMeans
 import io
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Load your custom model (ensure your model path is correct)
 model = tf.keras.models.load_model('Age_Sex_Detection.keras')
