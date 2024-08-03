@@ -30,7 +30,7 @@ def preprocess_image(img):
 # Assuming your model outputs two separate predictions: age and gender
 def detect_age_gender(image):
     img = preprocess_image(image)
-    pred = model.predict(np.array([img]))
+    pred = model.predict(np.array(img))
 
     # Extract predictions
     age = int(np.round(pred[1][0]))
