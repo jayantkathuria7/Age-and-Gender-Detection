@@ -156,7 +156,11 @@ def main():
                 elif gender == 'Female':
                     female_count += 1
 
-                cv2.putText(image_np, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+                (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
+
+                # Draw a filled black rectangle around the text
+                cv2.rectangle(image_np, (x, y - 30), (x + w + 10, y), (0, 0, 0), -1)
+                cv2.putText(image_np, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 
         # Display images and counts
         st.image(image_np, caption="Processed Image", use_column_width=True)
