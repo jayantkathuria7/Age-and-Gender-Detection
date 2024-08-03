@@ -130,7 +130,7 @@ def main():
         if len(faces) >= 2:
             # Draw bounding boxes around detected faces
             for (x, y, w, h) in faces:
-                cv2.rectangle(image_np, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                cv2.rectangle(image_np, (x, y), (x + w, y + h), (0, 0, 255), 2)
                 face_roi = image_np[y:y + h, x:x + w]
                 age, gender = detect_age_gender(face_roi)
                 shirt_roi = create_shirt_roi(image_np, (x, y, w, h))
@@ -156,7 +156,7 @@ def main():
                 elif gender == 'Female':
                     female_count += 1
 
-                cv2.putText(image_np, label, (x, y - 10), cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.4, (0, 255, 0), 1)
+                cv2.putText(image_np, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 2)
 
         # Display images and counts
         st.image(image_np, caption="Processed Image", use_column_width=True)
