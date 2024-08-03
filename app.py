@@ -156,10 +156,18 @@ def main():
                 elif gender == 'Female':
                     female_count += 1
 
-                (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
+                # Calculate font scale based on bounding box height
+                font_scale = h / 100.0
+                thickness = int(font_scale * 2)  # Adjust thickness proportional to font scale
+
+                # Measure the size of the text
+                (text_w, text_h), baseline = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
+                # Add padding to the text size
+                text_w += 10
+                text_h += 10
 
                 # Draw a filled black rectangle around the text
-                cv2.rectangle(image_np, (x, y - 30), (x + w + 10, y), (0, 0, 0), -1)
+                cv2.rectangle(image_np, (x, y - text_h - 10), (x + text_w, y - 10), (0, 0, 0), -1)
                 cv2.putText(image_np, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 
         # Display images and counts
@@ -213,7 +221,21 @@ def main():
                         age = 23
                         label = f'{gender}, {age}'
 
-                    cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 1)
+                    # Calculate font scale based on bounding box height
+                    font_scale = h / 100.0
+                    thickness = int(font_scale * 2)  # Adjust thickness proportional to font scale
+
+                    # Measure the size of the text
+                    (text_w, text_h), baseline = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
+                    # Add padding to the text size
+                    text_w += 10
+                    text_h += 10
+
+                    # Draw a filled black rectangle around the text
+                    cv2.rectangle(frame, (x, y - text_h - 10), (x + text_w, y - 10), (0, 0, 0), -1)
+            
+                    # Put the text on top of the black rectangle
+                    cv2.putText(frame, label, (x + 5, y - 5), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), thickness)
 
                     # Update gender counters
                     if gender == 'Male':
