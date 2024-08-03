@@ -103,33 +103,37 @@ def detect_shirt(frame, shirt_roi):
     return detected_color
 
 def draw_label_within_bbox(image, label, x, y, w, h):
-    # Define maximum width for text (80% of bounding box width)
+    # Define maximum width for the text (80% of bounding box width)
     max_text_width = w * 0.8
+    min_font_scale = 0.3  # Minimum allowable font scale
+
+    # Initialize font properties
+    font = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = 1.0
     thickness = 2
     
     # Function to get text size
     def get_text_size(text, font_scale, thickness):
-        return cv2.getTextSize(text, cv2.FONT_HERSHEY_COMPLEX_SMALL, font_scale, thickness)
+        return cv2.getTextSize(text, font, font_scale, thickness)
     
-    # Reduce font size until text fits within the max width
-    while True:
+    # Check if text width fits within the maximum allowed width
+    text_size, _ = get_text_size(label, font_scale, thickness)
+    text_w, text_h = text_size
+    
+    # Reduce font size until text width fits within the maximum width
+    while text_w > max_text_width and font_scale > min_font_scale:
+        font_scale -= 0.1
         text_size, _ = get_text_size(label, font_scale, thickness)
         text_w, text_h = text_size
-        if text_w <= max_text_width and text_h <= h * 0.8:  # Ensure height also fits within bounding box
-            break
-        font_scale -= 0.1
-        if font_scale <= 0.1:
-            break
 
     # Calculate the text size and position
     text_size, _ = get_text_size(label, font_scale, thickness)
     text_w, text_h = text_size
-    
-    # Text position (centered horizontally, just above bounding box)
+
+    # Text position (centered horizontally, slightly above bounding box)
     text_x = x + (w - text_w) // 2
-    text_y = y - 10  # Slightly above the bounding box
-    
+    text_y = y - 10  # Position text above the bounding box
+
     # Rectangle dimensions with padding
     rect_x1 = text_x - 5
     rect_y1 = text_y - text_h - 10
@@ -144,10 +148,9 @@ def draw_label_within_bbox(image, label, x, y, w, h):
 
     # Draw the black rectangle
     cv2.rectangle(image, (rect_x1, rect_y1), (rect_x2, rect_y2), (0, 0, 0), -1)
-    
-    # Draw the text on top of the rectangle
-    cv2.putText(image, label, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL, font_scale, (255, 255, 255), thickness)
 
+    # Draw the text on top of the rectangle
+    cv2.putText(image, label, (text_x, text_y), font, font_scale, (255, 255, 255), thickness)
 
 def main():
     st.title("Age and Gender Detection")
