@@ -102,6 +102,28 @@ def detect_shirt(frame, shirt_roi):
         detected_color = 'unknown'
     return detected_color
 
+def draw_label_within_bbox(image, label, x, y, w, h):
+    # Set maximum width for text to be 80% of the bounding box width
+    max_text_width = w * 0.8
+    font_scale = 1.0
+    thickness = 2
+
+    # Calculate text size and adjust font scale if needed
+    while True:
+        (text_w, text_h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
+        if text_w <= max_text_width:
+            break
+        font_scale -= 0.1  # Reduce font size
+        if font_scale <= 0.1:  # Minimum font scale
+            break
+
+    # Draw a filled black rectangle around the text
+    cv2.rectangle(image, (x, y - text_h - 10), (x + int(text_w), y - 10), (0, 0, 0), -1)
+    
+    # Put the text on top of the black rectangle
+    cv2.putText(image, label, (x + 5, y - 5), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), thickness)
+
+
 def main():
     st.title("Age and Gender Detection")
     st.markdown("""
@@ -156,20 +178,8 @@ def main():
                 elif gender == 'Female':
                     female_count += 1
 
-                # Calculate font scale based on bounding box height
-                font_scale = h / 100.0
-                thickness = int(font_scale * 2)  # Adjust thickness proportional to font scale
-
-                # Measure the size of the text
-                (text_w, text_h), baseline = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
-                # Add padding to the text size
-                text_w += 10
-                text_h += 10
-
-                # Draw a filled black rectangle around the text
-                cv2.rectangle(image_np, (x, y - text_h - 10), (x + text_w, y - 10), (0, 0, 0), -1)
-                cv2.putText(image_np, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-
+                draw_label_within_bbox(image_np, label, x, y, w, h)
+                
         # Display images and counts
         st.image(image_np, caption="Processed Image", use_column_width=True)
         st.write(f"Number of Males: {male_count}")
@@ -221,22 +231,8 @@ def main():
                         age = 23
                         label = f'{gender}, {age}'
 
-                    # Calculate font scale based on bounding box height
-                    font_scale = h / 100.0
-                    thickness = int(font_scale * 2)  # Adjust thickness proportional to font scale
-
-                    # Measure the size of the text
-                    (text_w, text_h), baseline = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
-                    # Add padding to the text size
-                    text_w += 10
-                    text_h += 10
-
-                    # Draw a filled black rectangle around the text
-                    cv2.rectangle(frame, (x, y - text_h - 10), (x + text_w, y - 10), (0, 0, 0), -1)
-            
-                    # Put the text on top of the black rectangle
-                    cv2.putText(frame, label, (x + 5, y - 5), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), thickness)
-
+                    draw_label_within_bbox(frame, label, x, y, w, h)
+                    
                     # Update gender counters
                     if gender == 'Male':
                         male_count += 1
