@@ -12,7 +12,13 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Load your custom model (ensure your model path is correct)
-model = tf.keras.models.load_model('Age_Sex_Detection.keras')
+# Load your custom model (ensure your model path is correct)
+try:
+    model = tf.keras.models.load_model('Age_Sex_Detection.keras')
+    logging.info("Model loaded successfully.")
+except Exception as e:
+    logging.error(f"Error loading model: {e}")
+    st.error("Failed to load model.")
 
 def preprocess_image(img):
     if isinstance(img, Image.Image):  # Check if the image is a PIL image
