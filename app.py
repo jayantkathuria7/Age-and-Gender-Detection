@@ -108,7 +108,6 @@ def draw_label_within_bbox(image, label, x, y, w, h):
     font_scale = 1.0
     thickness = 2
 
-    # Calculate text size and adjust font scale if needed
     while True:
         (text_w, text_h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
         if text_w <= max_text_width:
@@ -117,11 +116,28 @@ def draw_label_within_bbox(image, label, x, y, w, h):
         if font_scale <= 0.1:  # Minimum font scale
             break
 
+    # Calculate text size and position
+    (text_w, text_h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
+    
+    # Calculate the position for the rectangle and text
+    text_x = x + (w - text_w) // 2  # Center the text horizontally
+    text_y = y - 10  # Position text above the bounding box
+    rect_x1 = text_x - 5  # Add padding around the text
+    rect_y1 = text_y - text_h - 10  # Position rectangle above the text
+    rect_x2 = text_x + text_w + 5
+    rect_y2 = text_y + 5
+
+    # Ensure rectangle coordinates are within the image bounds
+    rect_x1 = max(rect_x1, 0)
+    rect_y1 = max(rect_y1, 0)
+    rect_x2 = min(rect_x2, image.shape[1])
+    rect_y2 = min(rect_y2, image.shape[0])
+
     # Draw a filled black rectangle around the text
-    cv2.rectangle(image, (x, y - text_h - 10), (x + int(text_w), y - 10), (0, 0, 0), -1)
+    cv2.rectangle(image, (rect_x1, rect_y1), (rect_x2, rect_y2), (0, 0, 0), -1)
     
     # Put the text on top of the black rectangle
-    cv2.putText(image, label, (x + 5, y - 5), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), thickness)
+    cv2.putText(image, label, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), thickness)
 
 
 def main():
