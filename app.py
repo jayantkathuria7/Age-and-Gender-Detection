@@ -6,57 +6,41 @@ import cv2
 import tempfile
 from sklearn.cluster import KMeans
 import io
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Load your custom model (ensure your model path is correct)
-try:
-    model = tf.keras.models.load_model('Age_Sex_Detection.keras')
-    logging.info("Model loaded successfully.")
-except Exception as e:
-    logging.error(f"Error loading model: {e}")
-    st.error("Failed to load model.")
+model = tf.keras.models.load_model('Age_Sex_Detection.keras')
 
 def preprocess_image(img):
-    try:
-        if isinstance(img, Image.Image):  # Check if the image is a PIL image
-            if img.mode == 'RGBA':
-                img = img.convert('RGB')
-            img = np.array(img)  # Convert PIL image to NumPy array
-        elif isinstance(img, np.ndarray):  # If already a NumPy array
-            if len(img.shape) == 3 and img.shape[2] == 4:  # Check if it's RGBA
-                img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)  # Convert RGBA to RGB
-            img = np.array(img)
-        else:
-            raise ValueError("Unsupported image format")
+    if isinstance(img, Image.Image):  # Check if the image is a PIL image
+        if img.mode == 'RGBA':
+            img = img.convert('RGB')
+        img = np.array(img)  # Convert PIL image to NumPy array
+    elif isinstance(img, np.ndarray):  # If already a NumPy array
+        if len(img.shape) == 3 and img.shape[2] == 4:  # Check if it's RGBA
+            img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)    # Convert RGBA to RGB
+        img = np.array(img)
+    else:
+        raise ValueError("Unsupported image format")
 
         # Resize and normalize image
-        img = cv2.resize(img, (48, 48))
-        img = img / 255.0
-        logging.info(f"Image preprocessed: shape={img.shape}")
-        return img
-    except Exception as e:
-        logging.error(f"Error in preprocess_image: {e}")
-        st.error("An error occurred during image preprocessing.")
-        return None
-
+    img = cv2.resize(img, (48, 48))
+    img = img / 255.0
+    return img
 
 
 # Assuming your model outputs two separate predictions: age and gender
 def detect_age_gender(image):
-    try:
-        img = preprocess_image(image)
-        pred = model.predict(np.array([img]))
-        age = int(np.round(pred[1][0]))
-        gender = int(np.round(pred[0][0]))
-        gender_f = ['Male', 'Female']
-        return age, gender_f[gender]
-    except Exception as e:
-        logging.error(f"Error in detect_age_gender: {e}")
-        st.error("An error occurred during age and gender detection.")
-        return None, None
+    img = preprocess_image(image)
+    pred = model.predict(np.array([img]))
+    print(pred)
+    # Extract predictions
+    age = int(np.round(pred[1][0]))
+    gender = int(np.round(pred[0][0]))
+
+    # Example interpretation (you need to adjust according to your model's output)
+    gender_f = ['Male', 'Female']
+
+    return age, gender_f[gender]
 
 # Detect faces in the frame
 def detect_faces(frame):
@@ -130,7 +114,7 @@ def main():
         if len(faces) >= 2:
             # Draw bounding boxes around detected faces
             for (x, y, w, h) in faces:
-                cv2.rectangle(image_np, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                cv2.rectangle(image_np, (x, y), (x + w, y + h), (0, 255, 255), 2)
                 face_roi = image_np[y:y + h, x:x + w]
                 age, gender = detect_age_gender(face_roi)
                 shirt_roi = create_shirt_roi(image_np, (x, y, w, h))
@@ -155,8 +139,6 @@ def main():
                     male_count += 1
                 elif gender == 'Female':
                     female_count += 1
-
-               # Draw label
                 (text_width, text_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
                 rect_x1 = x
                 rect_y1 = y - text_height - 10
@@ -165,7 +147,6 @@ def main():
                 cv2.rectangle(image_np, (rect_x1, rect_y1), (rect_x2, rect_y2), (0, 0, 0), -1)
                 cv2.putText(image_np, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
 
-                
         # Display images and counts
         st.image(image_np, caption="Processed Image", use_column_width=True)
         st.write(f"Number of Males: {male_count}")
@@ -217,7 +198,6 @@ def main():
                         age = 23
                         label = f'{gender}, {age}'
 
-                    # Draw label
                     (text_width, text_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
                     rect_x1 = x
                     rect_y1 = y - text_height - 10
@@ -225,7 +205,7 @@ def main():
                     rect_y2 = y - 5
                     cv2.rectangle(frame, (rect_x1, rect_y1), (rect_x2, rect_y2), (0, 0, 0), -1)
                     cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
-                    
+
                     # Update gender counters
                     if gender == 'Male':
                         male_count += 1
@@ -243,8 +223,6 @@ def main():
 
         video.release()
         cv2.destroyAllWindows()
-        st.write("Debug info:", debug_info)
-
 
 
 if __name__ == "__main__":
